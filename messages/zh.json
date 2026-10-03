@@ -1,0 +1,25 @@
+{
+  "Common": {
+    "loading": "加载中...",
+    "error": "发生错误",
+    "searchPlaceholder": "搜索电影..."
+  },
+  "Navigation": {
+    "home": "首页",
+    "addMovie": "添加电影"
+  },
+  "MovieCard": {
+    "director": "导演",
+    "year": "年份",
+    "rating": "评分"
+  },
+  "ParentalGuide": {
+    "title": "家长指南",
+    "severity": {
+      "none": "无",
+      "mild": "轻度",
+      "moderate": "中度",
+      "severe": "重度"
+    }
+  }
+}

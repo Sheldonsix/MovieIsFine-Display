@@ -1,0 +1,25 @@
+{
+  "Common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "searchPlaceholder": "Search movies..."
+  },
+  "Navigation": {
+    "home": "Home",
+    "addMovie": "Add Movie"
+  },
+  "MovieCard": {
+    "director": "Director",
+    "year": "Year",
+    "rating": "Rating"
+  },
+  "ParentalGuide": {
+    "title": "Parental Guide",
+    "severity": {
+      "none": "None",
+      "mild": "Mild",
+      "moderate": "Moderate",
+      "severe": "Severe"
+    }
+  }
+}

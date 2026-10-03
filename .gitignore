@@ -1,0 +1,21 @@
+/node_modules
+/.next
+/out
+/build
+/coverage
+/.vercel
+
+.env*
+*.tsbuildinfo
+next-env.d.ts
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.DS_Store
+*.pem
+
+# Local poster cache; configure NEXT_PUBLIC_IMAGE_CDN_URL in deployments.
+/public/movie_pic/
+/public/posters/

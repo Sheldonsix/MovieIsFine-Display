@@ -1,0 +1,3 @@
+# Large local poster caches are served from the configured CDN in production.
+public/posters/**
+public/movie_pic/**
