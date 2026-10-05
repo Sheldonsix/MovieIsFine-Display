@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
-import { cookies } from "next/headers";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { MovieSearch } from "@/components/MovieSearch";
 import "./globals.css";
 
@@ -18,18 +16,15 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const messages = await getMessages();
-  const cookieStore = await cookies();
-  const locale = cookieStore.get("NEXT_LOCALE")?.value || "zh";
 
   return (
-    <html lang={locale === "en" ? "en" : "zh-CN"}>
+    <html lang= "zh-CN">
       <body>
         <NextIntlClientProvider messages={messages}>
           <div className="flex min-h-screen flex-col">
             <div className="bg-[#545652] text-xs text-[#d5d5d5]">
               <div className="mx-auto flex h-7 w-full max-w-5xl items-center justify-between px-4">
                 <span>MovieIsFine 电影资料库</span>
-                <LanguageSwitcher currentLocale={locale} />
               </div>
             </div>
 

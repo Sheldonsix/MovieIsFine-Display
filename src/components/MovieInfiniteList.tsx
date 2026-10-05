@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import { Movie } from '@/types/movie';
 import MovieCard from './MovieCard';
 import { fetchMovies } from '@/app/actions';
@@ -20,22 +19,27 @@ interface SortOption {
 }
 
 const SORT_OPTIONS: SortOption[] = [
-  { field: 'rating', label: '评分', icon: <Star className="w-4 h-4 stroke-[2px]" /> },
-  { field: 'releaseDate', label: '首映日期', icon: <Calendar className="w-4 h-4 stroke-[2px]" /> },
-  { field: 'title', label: '名称', icon: <Type className="w-4 h-4 stroke-[2px]" /> },
+  {
+    field: 'rating',
+    label: '评分',
+    icon: <Star className="w-4 h-4 stroke-[2px]" />,
+  },
+  {
+    field: 'releaseDate',
+    label: '首映日期',
+    icon: <Calendar className="w-4 h-4 stroke-[2px]" />,
+  },
+  {
+    field: 'title',
+    label: '名称',
+    icon: <Type className="w-4 h-4 stroke-[2px]" />,
+  },
 ];
 
-/**
- * Convert sort config to URL parameter string
- */
-function sortConfigToString(config: SortConfig): string {
-  return `${config.field}_${config.order}`;
-}
-
-export default function MovieInfiniteList({ initialMovies, initialSort }: MovieInfiniteListProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
+export default function MovieInfiniteList({
+  initialMovies,
+  initialSort,
+}: MovieInfiniteListProps) {
   const [movies, setMovies] = useState<Movie[]>(initialMovies);
   const [page, setPage] = useState(2);
   const [loading, setLoading] = useState(false);
@@ -80,7 +84,7 @@ export default function MovieInfiniteList({ initialMovies, initialSort }: MovieI
           loadMoreMovies();
         }
       },
-      { threshold: 0.1, rootMargin: '100px' }
+      { threshold: 0.1, rootMargin: '100px' },
     );
 
     const target = observerTarget.current;
@@ -96,42 +100,31 @@ export default function MovieInfiniteList({ initialMovies, initialSort }: MovieI
   }, [loadMoreMovies, hasMore, isChangingSort]);
 
   // Handle sort button click: toggle order for same field, switch to field (default desc) for different field
-  const handleSortClick = (field: SortField) => {
-    let newConfig: SortConfig;
-
-    if (sortConfig.field === field) {
-      // Same field: toggle order
-      newConfig = {
-        field,
-        order: sortConfig.order === 'desc' ? 'asc' : 'desc',
-      };
-    } else {
-      // Different field: switch to that field, default descending
-      newConfig = {
-        field,
-        order: 'desc',
-      };
-    }
-
-    updateSort(newConfig);
-  };
-
-  // Update URL and trigger reload
-  const updateSort = (newConfig: SortConfig) => {
-    if (newConfig.field === sortConfig.field && newConfig.order === sortConfig.order) return;
+  const handleSortClick = async (field: SortField) => {
+    const newConfig: SortConfig =
+      sortConfig.field === field
+        ? {
+            field,
+            order: sortConfig.order === 'desc' ? 'asc' : 'desc',
+          }
+        : {
+            field,
+            order: 'desc',
+          };
 
     setIsChangingSort(true);
-    const params = new URLSearchParams(searchParams.toString());
 
-    // Default value (rating_desc) doesn't need to be shown in URL
-    if (newConfig.field === 'rating' && newConfig.order === 'desc') {
-      params.delete('sort');
-    } else {
-      params.set('sort', sortConfigToString(newConfig));
+    try {
+      const firstPage = await fetchMovies(1, newConfig);
+      setMovies(firstPage);
+      setPage(2);
+      setHasMore(firstPage.length > 0);
+      setSortConfig(newConfig);
+    } catch (error) {
+      console.error('Failed to load movies:', error);
+    } finally {
+      setIsChangingSort(false);
     }
-
-    const queryString = params.toString();
-    router.push(queryString ? `/?${queryString}` : '/', { scroll: false });
   };
 
   return (
@@ -151,10 +144,7 @@ export default function MovieInfiniteList({ initialMovies, initialSort }: MovieI
                 disabled={isChangingSort}
                 aria-pressed={isActive}
                 className={`control focus-ring px-3 py-1
-                  ${isActive
-                    ? 'control-active'
-                    : ''
-                  }
+                  ${isActive ? 'control-active' : ''}
                   disabled:opacity-50 disabled:cursor-not-allowed`}
                 title={
                   isActive
@@ -165,11 +155,12 @@ export default function MovieInfiniteList({ initialMovies, initialSort }: MovieI
                 {option.icon}
                 <span>{option.label}</span>
                 {/* Show arrow for active field */}
-                {isActive && (
-                  isDesc
-                    ? <ArrowDown className="w-4 h-4 stroke-[2px]" />
-                    : <ArrowUp className="w-4 h-4 stroke-[2px]" />
-                )}
+                {isActive &&
+                  (isDesc ? (
+                    <ArrowDown className="w-4 h-4 stroke-[2px]" />
+                  ) : (
+                    <ArrowUp className="w-4 h-4 stroke-[2px]" />
+                  ))}
               </button>
             );
           })}
@@ -188,9 +179,7 @@ export default function MovieInfiniteList({ initialMovies, initialSort }: MovieI
         {(loading || isChangingSort) && (
           <div className="subtle-box flex items-center gap-2 px-4 py-2 text-sm text-[#999]">
             <span className="size-1.5 rounded-full bg-[#00a65a]" />
-            <span>
-              {isChangingSort ? '切换排序中...' : '正在加载更多...'}
-            </span>
+            <span>{isChangingSort ? '切换排序中...' : '正在加载更多...'}</span>
           </div>
         )}
         {!hasMore && movies.length > 0 && !isChangingSort && (

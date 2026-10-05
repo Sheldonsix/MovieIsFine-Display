@@ -19,3 +19,5 @@ yarn-error.log*
 # Local poster cache; configure NEXT_PUBLIC_IMAGE_CDN_URL in deployments.
 /public/movie_pic/
 /public/posters/
+
+.vscode

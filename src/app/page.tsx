@@ -1,19 +1,13 @@
-import MovieInfiniteList from "@/components/MovieInfiniteList";
-import { fetchMovieCount, fetchMovies } from "@/app/actions";
-import { parseSortString, type SortConfig } from "@/services/movieService";
+import MovieInfiniteList from '@/components/MovieInfiniteList';
+import { fetchMovieCount, fetchMovies } from '@/app/actions';
+import { type SortConfig } from '@/services/movieService';
 
 export const revalidate = 3600;
 
-interface HomeProps {
-  searchParams: Promise<{ sort?: string }>;
-}
+const DEFAULT_SORT: SortConfig = { field: 'rating', order: 'desc' };
 
-export default async function Home({ searchParams }: HomeProps) {
-  const params = await searchParams;
-  const sortConfig: SortConfig = params.sort
-    ? parseSortString(params.sort)
-    : { field: "rating", order: "desc" };
-  const initialMovies = await fetchMovies(1, sortConfig);
+export default async function Home() {
+  const initialMovies = await fetchMovies(1, DEFAULT_SORT);
   const movieCount = await fetchMovieCount();
 
   return (
@@ -23,11 +17,15 @@ export default async function Home({ searchParams }: HomeProps) {
           选电影
         </h1>
         <p className="mt-2 text-sm text-[#999]">
-          从 <span className="font-medium text-[#666]">{movieCount}</span> 部电影中发现下一部值得看的作品
+          从 <span className="font-medium text-[#666]">{movieCount}</span>{' '}
+          部电影中发现下一部值得看的作品
         </p>
       </div>
 
-      <MovieInfiniteList initialMovies={initialMovies} initialSort={sortConfig} />
+      <MovieInfiniteList
+        initialMovies={initialMovies}
+        initialSort={DEFAULT_SORT}
+      />
     </section>
   );
 }
