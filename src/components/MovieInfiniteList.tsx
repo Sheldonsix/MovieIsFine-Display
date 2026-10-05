@@ -136,11 +136,10 @@ export default function MovieInfiniteList({ initialMovies, initialSort }: MovieI
 
   return (
     <>
-      {/* Sort selector - 90s style */}
-      <div className="flex items-center gap-2 mb-6 flex-wrap panel-90s p-2">
-        <span className="text-sm font-bold text-[#808080]">排序：</span>
+      <div className="subtle-box mb-7 flex flex-wrap items-center gap-3 px-3 py-2.5">
+        <span className="text-xs text-[#999]">排序：</span>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {SORT_OPTIONS.map((option) => {
             const isActive = sortConfig.field === option.field;
             const isDesc = sortConfig.order === 'desc';
@@ -150,9 +149,10 @@ export default function MovieInfiniteList({ initialMovies, initialSort }: MovieI
                 key={option.field}
                 onClick={() => handleSortClick(option.field)}
                 disabled={isChangingSort}
-                className={`btn-90s flex items-center gap-1.5 px-3 py-1.5 text-sm
+                aria-pressed={isActive}
+                className={`control focus-ring px-3 py-1
                   ${isActive
-                    ? 'btn-90s-accent'
+                    ? 'control-active'
                     : ''
                   }
                   disabled:opacity-50 disabled:cursor-not-allowed`}
@@ -176,8 +176,7 @@ export default function MovieInfiniteList({ initialMovies, initialSort }: MovieI
         </div>
       </div>
 
-      {/* Movie grid - table-like with visible borders */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
+      <div className="grid grid-cols-2 gap-x-5 gap-y-9 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
         {movies.map((movie) => (
           <div key={movie.id}>
             <MovieCard movie={movie} />
@@ -185,20 +184,17 @@ export default function MovieInfiniteList({ initialMovies, initialSort }: MovieI
         ))}
       </div>
 
-      {/* Loading indicator - 90s style */}
       <div ref={observerTarget} className="flex justify-center py-8">
         {(loading || isChangingSort) && (
-          <div className="panel-90s p-4 flex items-center gap-2">
-            <span className="animate-blink text-[#FF0000] font-bold">●</span>
-            <span className="font-bold">
+          <div className="subtle-box flex items-center gap-2 px-4 py-2 text-sm text-[#999]">
+            <span className="size-1.5 rounded-full bg-[#00a65a]" />
+            <span>
               {isChangingSort ? '切换排序中...' : '正在加载更多...'}
             </span>
           </div>
         )}
         {!hasMore && movies.length > 0 && !isChangingSort && (
-          <div className="panel-90s p-4 bg-[#FFFFCC]">
-            <p className="font-bold text-sm">═══ 已经到底啦~ ═══</p>
-          </div>
+          <p className="text-sm text-[#999]">已经浏览完全部电影</p>
         )}
       </div>
     </>

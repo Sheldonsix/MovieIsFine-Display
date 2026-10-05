@@ -7,6 +7,7 @@ MovieIsFine 的只读展示版本。它从现有 MongoDB 读取电影资料，�
 ## 环境要求
 
 - Node.js 20+
+- pnpm 10.33.0
 - 可访问的 MongoDB 数据库，其中包含 `movies` 集合
 
 ## 配置
@@ -24,15 +25,15 @@ NEXT_PUBLIC_IMAGE_CDN_URL=https://your-cdn.example.com
 ## 运行
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 生产构建：
 
 ```bash
-npm run build
-npm start
+pnpm build
+pnpm start
 ```
 
 构建电影详情静态参数时需要连接 MongoDB。

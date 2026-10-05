@@ -1,158 +1,95 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
+import { ExternalLink } from "lucide-react";
 import type {
-  ParentalGuide as ParentalGuideType,
-  GuideCategoryKey,
   GuideCategory,
-} from '@/types/parentalGuide';
+  GuideCategoryKey,
+  ParentalGuide as ParentalGuideType,
+} from "@/types/parentalGuide";
 
 interface CategoryConfig {
   key: GuideCategoryKey;
   label: string;
-  icon: string;
 }
 
 const CATEGORY_CONFIGS: CategoryConfig[] = [
-  { key: 'sex_nudity', label: '性与裸露', icon: '💋' },
-  { key: 'violence_gore', label: '暴力与血腥', icon: '⚔️' },
-  { key: 'profanity', label: '粗口', icon: '🗣️' },
-  { key: 'alcohol_drugs_smoking', label: '酒精/毒品/吸烟', icon: '🍺' },
-  { key: 'frightening_intense', label: '惊吓/紧张', icon: '😱' },
+  { key: "sex_nudity", label: "性与裸露" },
+  { key: "violence_gore", label: "暴力与血腥" },
+  { key: "profanity", label: "粗口" },
+  { key: "alcohol_drugs_smoking", label: "酒精、毒品与吸烟" },
+  { key: "frightening_intense", label: "惊吓与紧张" },
 ];
 
-// Severity level styles - 90s color scheme
 const SEVERITY_CONFIG: Record<
   string,
-  { label: string; bgColor: string; textColor: string; barColor: string; barWidth: string }
+  { label: string; color: string; width: string }
 > = {
-  None: {
-    label: '无',
-    bgColor: '#808080',
-    textColor: '#FFFFFF',
-    barColor: '#808080',
-    barWidth: '0%',
-  },
-  Mild: {
-    label: '轻微',
-    bgColor: '#00AA00',
-    textColor: '#FFFFFF',
-    barColor: '#00FF00',
-    barWidth: '33%',
-  },
-  Moderate: {
-    label: '中等',
-    bgColor: '#FFCC00',
-    textColor: '#000000',
-    barColor: '#FFFF00',
-    barWidth: '66%',
-  },
-  Severe: {
-    label: '严重',
-    bgColor: '#FF0000',
-    textColor: '#FFFFFF',
-    barColor: '#FF0000',
-    barWidth: '100%',
-  },
+  None: { label: "无", color: "#999999", width: "0%" },
+  Mild: { label: "轻微", color: "#42a66b", width: "33%" },
+  Moderate: { label: "中等", color: "#f39800", width: "66%" },
+  Severe: { label: "严重", color: "#d85b53", width: "100%" },
 };
 
-interface Props {
-  guide: ParentalGuideType;
-}
-
-export default function ParentalGuide({ guide }: Props) {
+export default function ParentalGuide({ guide }: { guide: ParentalGuideType }) {
   const [expandedCategory, setExpandedCategory] =
     useState<GuideCategoryKey | null>(null);
 
-  const toggleCategory = (key: GuideCategoryKey) => {
-    setExpandedCategory(expandedCategory === key ? null : key);
-  };
-
   return (
-    <div className="space-y-4">
-      {/* Content rating badge - 90s style */}
+    <div className="space-y-5">
       {guide.content_rating && (
-        <div className="flex items-center gap-2">
-          <span className="bevel-outset bg-[#FFFF00] px-3 py-1 font-bold text-black text-sm">
-            ⚠️ {guide.content_rating_zh}
-          </span>
+        <div className="inline-flex items-center border border-[#f0d7aa] bg-[#fff8e9] px-3 py-1 text-xs text-[#9b6813]">
+          内容分级 · {guide.content_rating_zh}
         </div>
       )}
 
-      {/* Category overview - table-like layout */}
-      <div className="space-y-1">
-        {CATEGORY_CONFIGS.map((config, index) => {
+      <div className="overflow-hidden border border-[#e5e5e5]">
+        {CATEGORY_CONFIGS.map((config) => {
           const category = guide[config.key] as GuideCategory;
           if (!category) return null;
 
-          const severityConfig =
-            SEVERITY_CONFIG[category.severity] || SEVERITY_CONFIG.None;
+          const severity = SEVERITY_CONFIG[category.severity] || SEVERITY_CONFIG.None;
           const isExpanded = expandedCategory === config.key;
           const hasItems = category.items && category.items.length > 0;
 
           return (
-            <div
-              key={config.key}
-              className={`${index % 2 === 0 ? 'bg-[#FFFFFF]' : 'bg-[#E8E8E8]'} border-b-2 border-[#808080]`}
-            >
-              {/* Category header - clickable to expand */}
+            <div key={config.key} className="border-b border-[#e5e5e5] last:border-b-0">
               <button
-                onClick={() => hasItems && toggleCategory(config.key)}
+                onClick={() => hasItems && setExpandedCategory(isExpanded ? null : config.key)}
                 disabled={!hasItems}
-                className={`w-full flex items-center justify-between p-3 text-left ${
-                  hasItems
-                    ? 'hover:bg-[#FFFFCC] cursor-pointer'
-                    : 'cursor-default'
-                }`}
+                aria-expanded={hasItems ? isExpanded : undefined}
+                className="flex w-full items-center gap-4 bg-white px-4 py-3 text-left enabled:hover:bg-[#f7f7f7]"
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">{config.icon}</span>
-                  <span className="font-bold text-sm">
-                    {config.label}
-                  </span>
-                </div>
+                <span className="min-w-0 flex-1 text-sm text-[#555]">
+                  {config.label}
+                </span>
 
-                <div className="flex items-center gap-3">
-                  {/* Severity progress bar - 90s inset style */}
-                  <div className="w-20 h-3 bevel-inset bg-[#808080] overflow-hidden">
-                    <div
-                      className="h-full"
-                      style={{
-                        width: severityConfig.barWidth,
-                        backgroundColor: severityConfig.barColor,
-                      }}
-                    />
-                  </div>
-
-                  {/* Severity badge - 90s beveled */}
+                <span className="hidden h-1.5 w-24 overflow-hidden rounded-full bg-[#e5e5e5] sm:block">
                   <span
-                    className="bevel-outset px-2 py-0.5 text-xs font-bold min-w-[3rem] text-center"
-                    style={{
-                      backgroundColor: severityConfig.bgColor,
-                      color: severityConfig.textColor,
-                    }}
-                  >
-                    {severityConfig.label}
-                  </span>
+                    className="block h-full rounded-full"
+                    style={{ width: severity.width, backgroundColor: severity.color }}
+                  />
+                </span>
 
-                  {/* Expand/collapse indicator */}
-                  {hasItems && (
-                    <span className="text-sm font-bold text-[#000080]">
-                      {isExpanded ? '▼' : '►'}
-                    </span>
-                  )}
-                </div>
+                <span
+                  className="min-w-12 rounded-full border px-2.5 py-1 text-center text-xs font-semibold"
+                  style={{ color: severity.color, borderColor: `${severity.color}55` }}
+                >
+                  {severity.label}
+                </span>
+
+                {hasItems && (
+                  <span className="text-xs text-[#999]" aria-hidden="true">
+                    {isExpanded ? "−" : "+"}
+                  </span>
+                )}
               </button>
 
-              {/* Detailed items list */}
               {isExpanded && hasItems && (
-                <div className="px-4 pb-4 pt-2 bg-[#FFFFCC] border-t-2 border-[#808080]">
-                  <ul className="space-y-2 pl-8">
-                    {category.items_zh.map((item, itemIndex) => (
-                      <li
-                        key={itemIndex}
-                        className="text-sm leading-relaxed list-disc"
-                      >
+                <div className="border-t border-[#e5e5e5] bg-[#f7f7f7] px-5 py-4">
+                  <ul className="space-y-2 pl-5 text-sm leading-7 text-[#555]">
+                    {category.items_zh.map((item, index) => (
+                      <li key={index} className="list-disc marker:text-[#00a65a]">
                         {item}
                       </li>
                     ))}
@@ -164,18 +101,15 @@ export default function ParentalGuide({ guide }: Props) {
         })}
       </div>
 
-      {/* IMDB link - 90s hyperlink style */}
-      <div className="pt-2">
-        <a
-          href={guide.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 text-sm font-bold"
-        >
-          <span>► 查看 IMDB 完整家长指南</span>
-          <span className="text-[#00FF00]">↗</span>
-        </a>
-      </div>
+      <a
+        href={guide.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="focus-ring inline-flex items-center gap-1.5 rounded-sm text-sm no-underline"
+      >
+        查看 IMDb 完整家长指南
+        <ExternalLink size={14} />
+      </a>
     </div>
   );
 }

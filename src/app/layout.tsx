@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { cookies } from "next/headers";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { MovieSearch } from "@/components/MovieSearch";
 import "./globals.css";
-import Marquee from "react-fast-marquee";
-import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
-import { cookies } from 'next/headers';
-import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 export const metadata: Metadata = {
-  title: "MovieIsFine - Your 90s Movie Database",
-  description: "Movie is all you need. Welcome to 1997!",
+  title: "MovieIsFine — 电影资料库",
+  description: "发现电影，查看评分、剧情时间轴与家长指南。",
 };
 
 export default async function RootLayout({
@@ -18,82 +19,45 @@ export default async function RootLayout({
 }>) {
   const messages = await getMessages();
   const cookieStore = await cookies();
-  const locale = cookieStore.get('NEXT_LOCALE')?.value || 'zh';
+  const locale = cookieStore.get("NEXT_LOCALE")?.value || "zh";
 
   return (
-    <html lang="zh-CN">
-      <body className="min-h-screen">
+    <html lang={locale === "en" ? "en" : "zh-CN"}>
+      <body>
         <NextIntlClientProvider messages={messages}>
-          <div className="min-h-screen flex flex-col">
-          {/* Marquee announcement bar */}
-          <div className="bg-[#000080] py-1 bevel-inset">
-            <Marquee speed={40} gradient={false} pauseOnHover>
-              <span className="text-[#FFFF00] font-bold mx-4">★ Welcome to MovieIsFine! ★</span>
-              <span className="text-[#00FF00] font-bold mx-4">🎬 Your Ultimate Movie Database 🎬</span>
-              <span className="text-[#FF0000] font-bold mx-4">♦ Best viewed in Netscape Navigator 4.0 ♦</span>
-              <span className="text-[#00FFFF] font-bold mx-4">✦ Last Updated: 1997 ✦</span>
-              <span className="text-white font-bold mx-4">📼 Over 250 Movies! 📼</span>
-            </Marquee>
-          </div>
-
-          {/* Header - Windows 95 style */}
-          <header className="panel-90s p-2">
-            <div className="max-w-5xl mx-auto flex justify-between items-center">
-              <div className="flex items-center gap-4">
-                {/* Decorative colored squares */}
-                <div className="hidden sm:flex gap-1">
-                  <div className="color-square bg-[#FF0000]"></div>
-                  <div className="color-square bg-[#00FF00]"></div>
-                  <div className="color-square bg-[#0000FF]"></div>
-                  <div className="color-square bg-[#FFFF00]"></div>
-                </div>
-                <h1 className="heading-90s text-xl sm:text-2xl md:text-3xl text-rainbow">
-                  MovieIsFine
-                </h1>
-              </div>
-
-              {/* Hit counter style stats */}
-              <div className="flex items-center gap-4">
+          <div className="flex min-h-screen flex-col">
+            <div className="bg-[#545652] text-xs text-[#d5d5d5]">
+              <div className="mx-auto flex h-7 w-full max-w-5xl items-center justify-between px-4">
+                <span>MovieIsFine 电影资料库</span>
                 <LanguageSwitcher currentLocale={locale} />
-                <div className="hit-counter text-xs sm:text-sm">
-                  <span>Visitors: </span>
-                  <span className="font-bold">0001997</span>
+              </div>
+            </div>
+
+            <header className="border-b border-[#d9e5df] bg-[#f2f7f5]">
+              <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 px-4 py-5 sm:flex-row sm:items-center sm:gap-10">
+                <Link
+                  href="/"
+                  className="focus-ring shrink-0 rounded-sm text-3xl font-bold tracking-tight text-[#00a65a] no-underline hover:bg-transparent hover:text-[#008f4d]"
+                >
+                  MovieIsFine
+                </Link>
+                <div className="w-full max-w-xl flex-1">
+                  <MovieSearch />
                 </div>
               </div>
-            </div>
-          </header>
+            </header>
 
-          {/* Groove divider */}
-          <div className="hr-groove"></div>
+            <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:py-10">
+              {children}
+            </main>
 
-          {/* Main content */}
-          <main className="flex-1 w-full max-w-5xl mx-auto p-4">
-            {children}
-          </main>
-
-          {/* Groove divider */}
-          <div className="hr-groove"></div>
-
-          {/* Footer - Construction zone style */}
-          <footer className="panel-90s">
-            <div className="bg-construction h-4"></div>
-            <div className="p-4 text-center">
-              <p className="font-bold text-sm">
-                © 1997-{new Date().getFullYear()} MovieIsFine
-              </p>
-              <p className="text-xs mt-2 text-[#808080]">
-                Best viewed at 800x600 resolution | Powered by Windows 95
-              </p>
-              <div className="flex justify-center gap-2 mt-3">
-                <div className="color-square bg-[#FF00FF]"></div>
-                <div className="color-square bg-[#00FFFF]"></div>
-                <div className="color-square bg-[#FF8000]"></div>
-                <div className="color-square bg-[#8000FF]"></div>
+            <footer className="mt-8 border-t border-[#e5e5e5]">
+              <div className="mx-auto flex w-full max-w-5xl flex-col gap-1 px-4 py-6 text-xs text-[#999] sm:flex-row sm:justify-between">
+                <p>© {new Date().getFullYear()} MovieIsFine</p>
+                <p>只读电影资料展示</p>
               </div>
-            </div>
-            <div className="bg-construction h-4"></div>
-          </footer>
-        </div>
+            </footer>
+          </div>
         </NextIntlClientProvider>
       </body>
     </html>
