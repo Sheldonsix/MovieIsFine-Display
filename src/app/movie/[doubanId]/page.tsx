@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Star } from 'lucide-react';
+import { ArrowLeft, Star, StarHalf } from 'lucide-react';
 import { getAllDoubanIds, getMovieByDoubanId } from '@/services/movieService';
 import MovieTimeline from '@/components/MovieTimeline';
 import ParentalGuide from '@/components/ParentalGuide';
@@ -27,10 +27,13 @@ export default async function MovieDetailPage({
   }
 
   const year = movie.releaseDate?.slice(0, 4);
-  const starCount = Math.max(
-    0,
-    Math.min(5, Math.round(movie.doubanRating / 2)),
-  );
+
+  const rating = Math.max(0, Math.min(10, movie.doubanRating));
+  const starRating = Math.round(rating) / 2;
+
+  const fullStars = Math.floor(starRating);
+  const hasHalfStar = starRating % 1 !== 0;
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
   return (
     <article>
@@ -88,11 +91,29 @@ export default async function MovieDetailPage({
               <span className="text-xs text-[#999]">/ 10</span>
             </div>
             <div
-              className="mt-1 text-[#f39800]"
+              className="mt-1 flex gap-0.5"
               aria-label={`${movie.doubanRating} 分`}
             >
-              {'★'.repeat(starCount)}
-              {'☆'.repeat(5 - starCount)}
+              {Array.from({ length: fullStars }, (_, i) => (
+                <Star
+                  key={`full-${i}`}
+                  className="size-4 fill-[#f39800] text-[#f39800]"
+                  aria-hidden="true"
+                />
+              ))}
+              {hasHalfStar && (
+                <span className="relative size-4" aria-hidden="true">
+                  <Star className="absolute inset-0 size-4  text-[#d8d8d8]" />
+                  <StarHalf className="absolute inset-0 size-4 fill-[#f39800] text-[#f39800]" />
+                </span>
+              )}
+              {Array.from({ length: emptyStars }, (_, i) => (
+                <Star
+                  key={`empty-${i}`}
+                  className="size-4 text-[#d8d8d8]"
+                  aria-hidden="true"
+                />
+              ))}
             </div>
             {movie.ratingCount ? (
               <p className="mt-1 text-xs text-[#999]">
