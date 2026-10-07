@@ -1,11 +1,11 @@
-import Image from "next/image";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { getAllDoubanIds, getMovieByDoubanId } from "@/services/movieService";
-import MovieTimeline from "@/components/MovieTimeline";
-import ParentalGuide from "@/components/ParentalGuide";
-import { getPosterUrl } from "@/lib/imageUrl";
+import Image from 'next/image';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { ArrowLeft, Star } from 'lucide-react';
+import { getAllDoubanIds, getMovieByDoubanId } from '@/services/movieService';
+import MovieTimeline from '@/components/MovieTimeline';
+import ParentalGuide from '@/components/ParentalGuide';
+import { getPosterUrl } from '@/lib/imageUrl';
 
 export const revalidate = 3600;
 
@@ -27,7 +27,10 @@ export default async function MovieDetailPage({
   }
 
   const year = movie.releaseDate?.slice(0, 4);
-  const starCount = Math.max(0, Math.min(5, Math.round(movie.doubanRating / 2)));
+  const starCount = Math.max(
+    0,
+    Math.min(5, Math.round(movie.doubanRating / 2)),
+  );
 
   return (
     <article>
@@ -44,7 +47,9 @@ export default async function MovieDetailPage({
       <header className="border-b border-[#e5e5e5] pb-8">
         <h1 className="text-2xl font-bold leading-snug text-[#333] sm:text-[28px]">
           {movie.title}
-          {year && <span className="ml-2 font-normal text-[#888]">({year})</span>}
+          {year && (
+            <span className="ml-2 font-normal text-[#888]">({year})</span>
+          )}
         </h1>
         {movie.originalTitle && (
           <p className="mt-1 text-sm text-[#999]">{movie.originalTitle}</p>
@@ -66,9 +71,9 @@ export default async function MovieDetailPage({
 
           <dl className="space-y-1.5 text-[13px] leading-6 text-[#555]">
             <DetailRow label="导演" value={movie.director} />
-            <DetailRow label="编剧" value={movie.writers.join(" / ")} />
-            <DetailRow label="主演" value={movie.cast.join(" / ")} />
-            <DetailRow label="类型" value={movie.genres.join(" / ")} />
+            <DetailRow label="编剧" value={movie.writers.join(' / ')} />
+            <DetailRow label="主演" value={movie.cast.join(' / ')} />
+            <DetailRow label="类型" value={movie.genres.join(' / ')} />
             <DetailRow label="语言" value={movie.language} />
             <DetailRow label="上映日期" value={movie.releaseDate} />
             <DetailRow label="片长" value={`${movie.duration} 分钟`} />
@@ -77,11 +82,17 @@ export default async function MovieDetailPage({
           <aside className="border-t border-[#e5e5e5] pt-5 sm:col-span-2 lg:col-span-1 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0">
             <p className="text-xs text-[#999]">豆瓣评分</p>
             <div className="mt-1 flex items-baseline gap-1">
-              <span className="rating-number text-[30px] leading-none">{movie.doubanRating}</span>
+              <span className="rating-number text-[30px] leading-none">
+                {movie.doubanRating}
+              </span>
               <span className="text-xs text-[#999]">/ 10</span>
             </div>
-            <div className="mt-1 text-[#f39800]" aria-label={`${movie.doubanRating} 分`}>
-              {"★".repeat(starCount)}{"☆".repeat(5 - starCount)}
+            <div
+              className="mt-1 text-[#f39800]"
+              aria-label={`${movie.doubanRating} 分`}
+            >
+              {'★'.repeat(starCount)}
+              {'☆'.repeat(5 - starCount)}
             </div>
             {movie.ratingCount ? (
               <p className="mt-1 text-xs text-[#999]">
@@ -100,16 +111,53 @@ export default async function MovieDetailPage({
             )}
 
             {movie.imdbId && (
-              <div className="mt-5 border-t border-[#eeeeee] pt-4">
+              <div className="flex flex-col mt-5 border-t border-[#eeeeee] pt-4">
                 <p className="text-xs text-[#999]">IMDb 评分</p>
                 <a
-                  href={`https://www.imdb.com/title/${movie.imdbId}`}
+                  href={`https://www.imdb.com/title/${movie.imdbId}/ratings/`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rating-number mt-1 inline-block text-xl no-underline"
+                  aria-label={`查看 IMDb 用户评分${movie.imdbRating ? `：${movie.imdbRating} 分` : ''}`}
+                  className="focus-ring mt-1 inline-flex items-center gap-2 rounded px-1 py-1 text-[#333] no-underline transition-colors hover:bg-[#f5f5f5] hover:text-[#333]"
                 >
-                  {movie.imdbRating || "暂无"}
+                  <Star
+                    size={28}
+                    fill="currentColor"
+                    strokeWidth={1.5}
+                    aria-hidden="true"
+                    className="shrink-0 text-[#f5c518]"
+                  />
+                  <span>
+                    <span className="flex items-baseline gap-0.5 leading-none">
+                      <span className="text-xl font-bold tabular-nums">
+                        {movie.imdbRating || '暂无'}
+                      </span>
+                      {movie.imdbRating ? (
+                        <span className="text-xs font-normal text-[#777]">
+                          /10
+                        </span>
+                      ) : null}
+                    </span>
+                    {movie.imdbRatingCount ? (
+                      <span className="mt-1 block text-xs text-[#777]">
+                        {movie.imdbRatingCount.toLocaleString('en-US', {
+                          notation: 'compact',
+                          maximumFractionDigits: 1,
+                        })}
+                      </span>
+                    ) : null}
+                  </span>
                 </a>
+                {movie.imdbId && (
+                  <a
+                    href={`https://www.imdb.com/title/${movie.imdbId}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block text-xs"
+                  >
+                    查看 IMDb 条目
+                  </a>
+                )}
               </div>
             )}
           </aside>
@@ -128,7 +176,10 @@ export default async function MovieDetailPage({
           <section>
             <h2 className="section-heading">剧情时间轴</h2>
             <div className="mt-5">
-              <MovieTimeline duration={movie.duration} plotPoints={movie.plotPoints} />
+              <MovieTimeline
+                duration={movie.duration}
+                plotPoints={movie.plotPoints}
+              />
             </div>
           </section>
         )}
@@ -150,7 +201,7 @@ function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start gap-2">
       <dt className="shrink-0 text-[#999]">{label}：</dt>
-      <dd>{value || "暂无"}</dd>
+      <dd>{value || '暂无'}</dd>
     </div>
   );
 }
