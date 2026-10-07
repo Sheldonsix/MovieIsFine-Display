@@ -5,7 +5,7 @@ import { Movie } from '@/types/movie';
 import MovieCard from './MovieCard';
 import { fetchMovies } from '@/app/actions';
 import type { SortConfig, SortField } from '@/services/movieService';
-import { Star, Calendar, ArrowUp, ArrowDown, Type } from 'lucide-react';
+import { Star, Calendar, ArrowUp, ArrowDown, Type, Flame } from 'lucide-react';
 
 interface MovieInfiniteListProps {
   initialMovies: Movie[];
@@ -19,6 +19,11 @@ interface SortOption {
 }
 
 const SORT_OPTIONS: SortOption[] = [
+  {
+    field: 'ratingCount',
+    label: '热度',
+    icon: <Flame className="w-4 h-4 stroke-[2px]" />,
+  },
   {
     field: 'rating',
     label: '评分',

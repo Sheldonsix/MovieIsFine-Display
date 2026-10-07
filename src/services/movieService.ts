@@ -1,6 +1,6 @@
-import { getDatabase } from "@/lib/mongodb";
-import { Movie } from "@/types/movie";
-import { WithId, Document } from "mongodb";
+import { getDatabase } from '@/lib/mongodb';
+import { Movie } from '@/types/movie';
+import { WithId, Document } from 'mongodb';
 
 /**
  * 将 MongoDB 文档转换为 Movie 类型
@@ -18,7 +18,7 @@ function toMovie(doc: WithId<Document>): Movie {
  */
 export async function getMovieCount(): Promise<number> {
   const db = await getDatabase();
-  return db.collection("movies").countDocuments();
+  return db.collection('movies').countDocuments();
 }
 
 /**
@@ -27,8 +27,11 @@ export async function getMovieCount(): Promise<number> {
 export async function getAllDoubanIds(): Promise<string[]> {
   const db = await getDatabase();
   const movies = await db
-    .collection("movies")
-    .find({ doubanId: { $exists: true, $ne: "" } }, { projection: { doubanId: 1 } })
+    .collection('movies')
+    .find(
+      { doubanId: { $exists: true, $ne: '' } },
+      { projection: { doubanId: 1 } },
+    )
     .toArray();
   return movies.map((m) => m.doubanId as string);
 }
@@ -36,21 +39,23 @@ export async function getAllDoubanIds(): Promise<string[]> {
 /**
  * 根据豆瓣 ID 获取电影
  */
-export async function getMovieByDoubanId(doubanId: string): Promise<Movie | null> {
+export async function getMovieByDoubanId(
+  doubanId: string,
+): Promise<Movie | null> {
   const db = await getDatabase();
-  const doc = await db.collection("movies").findOne({ doubanId });
+  const doc = await db.collection('movies').findOne({ doubanId });
   return doc ? toMovie(doc) : null;
 }
 
 /**
  * 排序字段
  */
-export type SortField = "rating" | "releaseDate" | "title";
+export type SortField = 'rating' | 'releaseDate' | 'title' | 'ratingCount';
 
 /**
  * 排序方向
  */
-export type SortOrder = "asc" | "desc";
+export type SortOrder = 'asc' | 'desc';
 
 /**
  * 排序配置
@@ -65,15 +70,20 @@ export interface SortConfig {
  * @param sortStr 排序字符串，如 "rating_desc"、"releaseDate_asc"、"title_asc"
  */
 export function parseSortString(sortStr: string): SortConfig {
-  const [field, order] = sortStr.split("_") as [SortField, SortOrder];
+  const [field, order] = sortStr.split('_') as [SortField, SortOrder];
 
   // 验证字段有效性
-  const validFields: SortField[] = ["rating", "releaseDate", "title"];
-  const validOrders: SortOrder[] = ["asc", "desc"];
+  const validFields: SortField[] = [
+    'rating',
+    'releaseDate',
+    'title',
+    'ratingCount',
+  ];
+  const validOrders: SortOrder[] = ['asc', 'desc'];
 
   return {
-    field: validFields.includes(field) ? field : "rating",
-    order: validOrders.includes(order) ? order : "desc",
+    field: validFields.includes(field) ? field : 'rating',
+    order: validOrders.includes(order) ? order : 'desc',
   };
 }
 
@@ -81,9 +91,10 @@ export function parseSortString(sortStr: string): SortConfig {
  * 排序字段映射到数据库字段
  */
 const SORT_FIELD_MAP: Record<SortField, string> = {
-  rating: "doubanRating",
-  releaseDate: "releaseDate",
-  title: "title",
+  rating: 'doubanRating',
+  releaseDate: 'releaseDate',
+  title: 'title',
+  ratingCount: 'ratingCount',
 };
 
 /**
@@ -95,17 +106,17 @@ const SORT_FIELD_MAP: Record<SortField, string> = {
 export async function getMovies(
   page: number,
   limit: number = 24,
-  sortConfig: SortConfig = { field: "rating", order: "desc" }
+  sortConfig: SortConfig = { field: 'ratingCount', order: 'desc' },
 ): Promise<Movie[]> {
   const db = await getDatabase();
   const skip = (page - 1) * limit;
 
   // 根据排序配置选择排序字段和方向
   const sortField = SORT_FIELD_MAP[sortConfig.field];
-  const sortDirection = sortConfig.order === "asc" ? 1 : -1;
+  const sortDirection = sortConfig.order === 'asc' ? 1 : -1;
 
   const docs = await db
-    .collection("movies")
+    .collection('movies')
     .find({})
     .sort({ [sortField]: sortDirection })
     .skip(skip)
@@ -121,7 +132,7 @@ export async function getMovies(
  */
 export async function searchMovies(
   query: string,
-  limit: number = 10
+  limit: number = 10,
 ): Promise<Movie[]> {
   if (!query || query.trim().length === 0) {
     return [];
@@ -131,10 +142,10 @@ export async function searchMovies(
   const searchTerm = query.trim();
 
   // 使用正则表达式进行模糊搜索（支持中文）
-  const regex = new RegExp(searchTerm, "i");
+  const regex = new RegExp(searchTerm, 'i');
 
   const docs = await db
-    .collection("movies")
+    .collection('movies')
     .find({
       $or: [
         { title: regex },

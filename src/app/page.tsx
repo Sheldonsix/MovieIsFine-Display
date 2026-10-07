@@ -4,7 +4,7 @@ import { type SortConfig } from '@/services/movieService';
 
 export const revalidate = 3600;
 
-const DEFAULT_SORT: SortConfig = { field: 'rating', order: 'desc' };
+const DEFAULT_SORT: SortConfig = { field: 'ratingCount', order: 'desc' };
 
 export default async function Home() {
   const initialMovies = await fetchMovies(1, DEFAULT_SORT);
